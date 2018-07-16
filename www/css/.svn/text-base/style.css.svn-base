@@ -1,0 +1,39 @@
+body {
+	font-size:11px;
+	font-family:verdana,arial,sans-serif;
+}
+a {
+	color:#FF0000;
+}
+.bg {
+	float:left;
+	width:165px;
+	height:180px;
+	background-repeat: no-repeat;
+	border:0px solid #cccccc;
+}
+.info_col {
+	width:160px;
+	height:650px;
+	border-left:1px solid #aaaaaa;
+	background-color:#000000;
+	color:#ffffff;
+}
+.redText {
+	color:#FF0000;
+}
+.whiteText {
+	color:#FFFFFF;
+}
+.grayText {
+	color:#aaaaaa;
+}
+.story_para {
+	margin-bottom:10px;
+}
+.story_title {
+	font-size:20px;
+}
+.noUnder {
+	text-decoration:none;
+}

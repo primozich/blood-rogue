@@ -1,0 +1,170 @@
+<div class="info_col" style="float:left;font-weight:bold;width:215px;">
+	<div style="margin-top:20px;">
+		<div style="margin-left:10px;float:left;width:100px;">Dungeon Level</div>
+		<div style="float:right;margin-right:15px;"><?php echo $level; ?></div>
+	</div>
+	<div style="clear:both;"></div>
+	<div style="margin-top:20px;">
+		<div style="margin-left:10px;float:left;width:50px;">Level/XP</div>
+		<div style="float:right;margin-right:15px;"><?php echo $playerLevel; ?> / <?php echo $xp; ?></div>
+	</div>
+	<div style="clear:both;"></div>
+	<div style="margin-top:20px;">
+		<div style="margin-left:10px;float:left;width:100px;">Gold</div>
+		<div style="float:right;margin-right:15px;"><?php echo $gold; ?></div>
+	</div>
+	<div style="clear:both;"></div>
+	<div style="margin-top:20px;">
+		<div style="margin-left:10px;float:left;width:100px;">Hit Points</div>
+		<div style="float:right;margin-right:15px;"><?php echo $hit_points; ?> / <?php echo $hit_points_max; ?></div>
+	</div>
+	<div style="clear:both;"></div>
+	<div style="margin-top:20px;">
+		<div style="margin-left:10px;float:left;width:100px;">Strength</div>
+		<div style="float:right;margin-right:15px;"><?php echo $strength; ?> / <?php echo $strength_max; ?></div>
+	</div>
+	<div style="clear:both;"></div>
+	<div style="margin-top:20px;">
+		<div style="margin-left:10px;float:left;width:100px;">- - - - - - - - - - - </div>
+	</div>
+	<div style="clear:both;"></div>
+	<div style="margin-top:20px;">
+		<?php
+			if (count($items) == 0)
+			{
+		?>
+				<div style="margin-left:15px;float:left;width:130px;">Your sack is empty</div>
+		<?php
+			}
+			$itemCount = 0;
+			$hasPotions		= false;
+			$hasScrolls		= false;
+			$hasEquipment	= false;
+			$hasFood		= false;
+			foreach ($items as $item)
+			{
+				if ($item instanceof Model_Potion)
+				{
+					$hasPotions = true;
+				}
+				elseif ($item instanceof Model_Scroll)
+				{
+					$hasScrolls = true;
+				}
+				elseif ($item instanceof Model_Weapon)
+				{
+					$hasEquipment = true;
+				}
+				elseif ($item instanceof Model_Food)
+				{
+					$hasFood = true;
+				}
+			}
+
+			foreach ($items as $key => $item)
+			{
+				if ($itemCount == 0)
+				{
+		?>
+				<div style="margin-left:10px;margin-bottom:7px;margin-top:10px;width:100px;">Potions</div>
+		<?php 
+					if (!$hasPotions)
+					{
+						print('<div style="margin-left:15px;margin-bottom:7px;width:100px;">No potions</div>');
+						break;
+					}
+				}
+				if ($item instanceof Model_Potion)
+				{
+		?>	
+				<div style="margin-left:15px;float:left;width:100px;font-weight:normal;"><a class="whiteText" target="_top" href="http://<?php echo $env->www_root; ?>/rogue/use/<?php echo $key; ?>"><?php echo $item->getName(); ?></a></div>
+		<?php
+				}
+				$itemCount++;
+			} 
+			$itemCount = 0;
+			foreach ($items as $key => $item)
+			{
+				if ($itemCount == 0)
+				{
+		?>
+				<div style="clear:both;"></div>
+				<div style="margin-left:10px;margin-bottom:7px;margin-top:10px;width:100px;">Scrolls</div>
+		<?php 
+					if (!$hasScrolls)
+					{
+						print('<div style="margin-left:15px;margin-bottom:7px;width:100px;">No scrolls</div>');
+						break;
+					}
+				}
+				if ($item instanceof Model_Scroll)
+				{
+		?>	
+				<div style="margin-left:15px;float:left;width:100px;font-weight:normal;"><a class="whiteText" target="_top" href="http://<?php echo $env->www_root; ?>/rogue/use/<?php echo $key; ?>"><?php echo $item->getName(); ?></a></div>
+		<?php
+				}
+				$itemCount++;
+			} 
+			$itemCount = 0;
+			foreach ($items as $key => $item)
+			{
+				if ($itemCount == 0)
+				{
+		?>
+				<div style="clear:both;"></div>
+				<div style="margin-left:10px;margin-bottom:7px;margin-top:10px;width:100px;">Equipment</div>
+		<?php 
+					if (!$hasEquipment)
+					{
+						print('<div style="margin-left:15px;margin-bottom:7px;width:100px;">No equipment</div>');
+						break;
+					}
+				}
+				if ($item instanceof Model_Weapon)
+				{
+					if ($item->getIsBeingUsed())
+					{
+		?>	
+						<div style="clear:both;margin-left:15px;border:0px solid #fff;float:left;width:12px;">&gt;</div><div style="font-weight:normal;float:left;width:130px;"><?php echo $item->getName(); ?></div>
+		<?php
+					}
+					else
+					{
+		?>
+						<div style="clear:both;margin-left:15px;border:0px solid #fff;float:left;width:12px;">&nbsp;</div><div style="font-weight:normal;float:left;width:130px;"><a class="whiteText" target="_top" href="http://<?php echo $env->www_root; ?>/rogue/use/<?php echo $key; ?>"><?php echo $item->getName(); ?></a></div>
+		<?php
+					}
+				}
+				$itemCount++;
+			} 
+			$itemCount = 0;
+			foreach ($items as $key => $item)
+			{
+				if ($itemCount == 0)
+				{
+		?>
+				<div style="clear:both;"></div>
+				<div style="margin-left:10px;margin-bottom:7px;margin-top:10px;width:100px;">Food</div>
+		<?php 
+					if (!$hasFood)
+					{
+						print('<div style="margin-left:15px;margin-bottom:7px;width:100px;">No food</div>');
+						break;
+					}
+				}
+				if ($item instanceof Model_Food)
+				{
+		?>	
+				<div style="margin-left:15px;float:left;width:100px;font-weight:normal;"><a class="whiteText" target="_top" href="http://<?php echo $env->www_root; ?>/rogue/use/<?php echo $key; ?>"><?php echo $item->getName(); ?></a></div>
+		<?php
+				}
+				$itemCount++;
+			} 
+		?>
+	</div>
+	<div style="clear:both;"></div>
+	<div style="margin-top:20px;border:1px solid #ffffff;margin-left:15px;padding:5px;width:110px;">
+		Instructions: <span style="font-weight:normal;">Click on an item to use it or equip it. '&gt;' indicates an item that is equipped.</span>
+	</div>
+	<div style="margin-left:20px;margin-top:20px;font-size:20px;"><a style="color:#00ff00;" target="_top" href="http://<?php echo $env->www_root; ?>/rogue/reset">RESET</a></div>
+</div>

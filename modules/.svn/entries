@@ -1,0 +1,58 @@
+10
+
+dir
+936
+file:///svn/repos/redrogue/trunk/modules
+file:///svn/repos
+
+
+
+2010-09-04T21:07:05.809509Z
+936
+primozich
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+a066b6bb-6b26-4b17-8c7b-20b06ca13e0b
+
+unittest
+dir
+
+oauth
+dir
+
+auth
+dir
+
+image
+dir
+
+cache
+dir
+
+database
+dir
+
+pagination
+dir
+
+codebench
+dir
+
+userguide
+dir
+
+orm
+dir
+

@@ -1,0 +1,80 @@
+10
+
+dir
+936
+file:///svn/repos/redrogue/trunk/system
+file:///svn/repos
+
+
+
+2010-09-04T21:07:05.809509Z
+936
+primozich
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+a066b6bb-6b26-4b17-8c7b-20b06ca13e0b
+
+i18n
+dir
+
+base.php
+file
+
+
+
+
+2010-07-13T00:06:28.000000Z
+93e7d044c06e7d99978a0de7bcfbb970
+2010-09-04T21:07:05.809509Z
+936
+primozich
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1088
+
+config
+dir
+
+utf8
+dir
+
+messages
+dir
+
+classes
+dir
+
+views
+dir
+

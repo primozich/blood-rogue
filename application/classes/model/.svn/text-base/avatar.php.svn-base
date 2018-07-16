@@ -1,0 +1,328 @@
+<?php
+defined('SYSPATH') or die('No direct script access.');
+
+class Model_Avatar extends Model_Mososh
+{
+	const HIT_POINTS_START	= 12;
+	const STRENGTH_START	= 16;
+	const PACK_SIZE_START	= 10;
+	
+	const XP_FOR_LEVEL_2	= 10;
+	
+	//private $location;
+	
+	public $uuid;
+	
+	private $x;
+	private $y;
+	private $image;
+	private $showOnMap;
+	private $items;
+	private $weapon;
+	private $isConfused;
+
+	public function getX()
+	{
+		return $this->x;
+	}
+	public function setX($val)
+	{
+		$this->x = $val;
+	}
+	
+	public function getY()
+	{
+		return $this->y;
+	}
+	public function setY($val)
+	{
+		$this->y = $val;
+	}
+
+	public function getImage()
+	{
+		return $this->image;
+	}
+	public function setImage($val)
+	{
+		$this->image = $val;
+	}
+	
+	public function getShowOnMap()
+	{
+		return $this->showOnMap;
+	}
+	public function setShowOnMap($val)
+	{
+		$this->showOnMap = $val;
+	}
+	
+	public function getItems()
+	{
+		return $this->items;
+	}
+	public function setItems($val)
+	{
+		$this->items = $val;
+	}
+	
+	public function getWeapon()
+	{
+		return $this->weapon;
+	}
+	public function setWeapon($val)
+	{
+		$this->weapon = $val;
+	}
+	
+	public function getIsConfused()
+	{
+		return $this->isConfused;
+	}
+	public function setIsConfused($val)
+	{
+		$this->isConfused = $val;
+	}
+	
+	/*
+	public function getX()
+	{
+		return $this->location->getX();
+	}
+	public function setX($val)
+	{
+		//print('cp: '.$this->id);exit;
+		$this->location->setX($val);
+	}
+	
+	public function getY()
+	{
+		return $this->location->getY();
+	}
+	public function setY($val)
+	{
+		$this->location->setY($val);
+	}
+	
+	public function getImage()
+	{
+		return $this->location->getImage();
+	}
+	public function setImage($val)
+	{
+		$this->location->setImage($val);
+	}
+	
+	public function getShowOnMap()
+	{
+		return $this->location->getShowOnMap();
+	}
+	public function setShowOnMap($val)
+	{
+		$this->location->setShowOnMap($val);
+	}
+	*/
+	
+	public function __construct($id = NULL)
+	{
+		parent::__construct($id);
+		$this->uuid = Model_Avatar::getUuid();
+
+		//$this->location = new Model_Placeable();
+		$this->setImage('at.gif');
+		$this->setShowOnMap(true);
+		$this->items		= array();
+		$this->isConfused	= false; 
+	}
+	
+	public function getEquipment()
+	{
+		$equipment = ORM::factory('avatars_item')->where('avatar_id', '=', $this->id)->join->find_all();
+		return $equipment;
+	}
+	
+	public function getConsumables()
+	{
+		$consumables = ORM::factory('avatars_consumable')->where('avatar_id', '=', $this->id)->find_all();
+		return $consumables;
+	}
+	
+	public function addGold($gold)
+	{
+		if ($gold instanceof Model_Gold)
+		{
+			$this->gold += $gold->getAmount();
+			$this->save();
+		}
+	}
+	
+	public function removeItem($items, $index, $session)
+	{
+		$items = array_splice($items, $index, 1);
+		$session->set(Model_Constants::SESSION_ITEMS, $items);
+	}
+	
+	public function addItem($item, $session)
+	{
+		$this->items[] = $item;
+		
+		$items = $session->get(Model_Constants::SESSION_ITEMS);
+		if (!isset($items))
+		{
+			$items = array();
+		}
+		$items[] = $item;
+		$session->set(Model_Constants::SESSION_ITEMS, $items);
+
+		if ($item instanceof Model_Consumable)
+		{
+			$m					= new Model_Avatars_Consumable();
+			$m->avatar_id		= $this->id;
+			$m->consumable_id	= $item->id;
+			$m->save();
+			if (!($m->saved()))
+			{
+				throw new Exception("Couldn't save your item. Please try refreshing and email support@mososh.com if you continue to have trouble.");
+			}
+		}
+		elseif (($item instanceof Model_Weapon) || ($item instanceof Model_Armor))
+		{
+			$m					= new Model_Avatars_Item();
+			$m->avatar_id		= $this->id;
+			$m->item_id			= $item->id;
+			$m->save();
+			if (!($m->saved()))
+			{
+				throw new Exception("Couldn't save your item. Please try refreshing and email support@mososh.com if you continue to have trouble.");
+			}
+		}
+	}
+	
+	public function equipItem($item, $session)
+	{
+		if ($item instanceof Model_Weapon)
+		{
+			$items = $session->get(Model_Constants::SESSION_ITEMS);
+			if (!$items)
+			{
+				$items = array();
+				$session->get(Model_Constants::SESSION_ITEMS, $items);
+			}
+			foreach ($items as $oldItem)
+			{
+				if ($oldItem instanceof Model_Weapon)
+				{
+					$oldItem->setIsBeingUsed(false);
+				}
+			}
+			$item->setIsBeingUsed(true);
+			$session->set(Model_Constants::SESSION_WEAPON, $item);
+		}
+	}
+	
+	public function getDamage($monster)
+	{
+		$dmg = 1;
+		if ($this->weapon)
+		{
+			$dmg = $this->weapon->getDamage();
+		}
+		return $dmg;
+	}
+	
+	public function takeDamage($dmg)
+	{
+		$this->hit_points -= $dmg;
+	}
+	
+	public function addHitPoints($hp, $checkMax = true)
+	{
+		$added = $hp;
+		
+		if (($checkMax) && ($hp + $this->hit_points > $this->hit_points_max))
+		{
+			$added = $this->hit_points_max - $this->hit_points;
+			$this->hit_points = $this->hit_points_max;
+		}
+		else
+		{
+			$this->hit_points += $hp;
+		}
+		if ($added > 0)
+		{
+			$this->save();
+		}
+		
+		return $hp;
+	}
+	
+	public function addHunger($amount = 1)
+	{
+		$this->hunger += $amount;
+		$this->save();
+	}
+	
+	public function subtractHunger($amount)
+	{
+		$this->hunger -= $amount;
+		if ($this->hunger < 0)
+		{
+			$this->hunger = 0;
+		}
+		$this->save();
+	}
+	
+	public function getMyLink()
+	{
+		return '/rogue';
+	}
+	
+	public function addXp($xp)
+	{
+		$currentLevel = $this->getLevelForXp($this->xp);
+		$this->xp += $xp;
+		$newLevel = $this->getLevelForXp($this->xp);
+		if ($newLevel > $currentLevel)
+		{
+			$dieRoll = mt_rand(2, 6);
+			$this->hit_points_max += $dieRoll;
+			// Fill hp
+			$this->addHitPoints($this->hit_points_max - $this->hit_points);
+			
+		}
+	}
+	
+	public static function getXpForNextLevel($level)
+	{
+		$nextLevel = 10;
+		$prevLevel = 10;
+		$mult = 2;
+		for ($i = 1; $i < $level; $i++)
+		{
+			$nextLevel = $mult * $prevLevel;
+			$prevLevel = $nextLevel;
+			/*
+			1 = 0
+			2 = 10
+			3 = 20
+			4 = 40
+			5 = 80
+			6 = 160
+			*/
+			if ($i > 1000)
+				exit;
+		}
+		//print('Level '.$level.', XP: '.$nextLevel.'<br>');
+		return $nextLevel;
+	}
+	public static function getLevelForXp($xp)
+	{
+		$level = 1;
+		while ($xp >= self::getXpForNextLevel($level))
+		{
+			$level++;
+		}
+		return $level;
+	}
+}
+?>
